@@ -1,0 +1,1 @@
+![](./RickAndMorty_Demo.gif)
