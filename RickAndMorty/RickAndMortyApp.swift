@@ -11,7 +11,7 @@ import SwiftUI
 struct RickAndMortyApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            CharacterSearchView(characterSearchVM: CharacterSearchVM(networkManager: NetworkManager.shared))
         }
     }
 }
