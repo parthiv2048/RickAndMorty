@@ -20,6 +20,9 @@ class NetworkManager: NetworkManagerProtocol {
     // MARK: - Fetch Characters from Server
     
     func fetchCharacters(url: String) async -> NetworkState {
+        /// Simulate long loading time
+        try? await Task.sleep(for: .seconds(3))
+        
         guard let serverURL = URL(string: url) else {
             return .invalidURL
         }

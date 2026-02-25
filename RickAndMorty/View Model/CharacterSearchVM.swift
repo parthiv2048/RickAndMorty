@@ -14,6 +14,7 @@ protocol CharacterSearchViewModelProtocol {
     func getCharactersList() -> [Character]?
 }
 
+@MainActor
 @Observable
 class CharacterSearchVM: CharacterSearchViewModelProtocol {
     
@@ -36,25 +37,24 @@ class CharacterSearchVM: CharacterSearchViewModelProtocol {
     // MARK: - Search Character using Network Manager
 
     func searchCharacter(query: String) {
-        Task {
-            isLoading = true
-            errorMessage = nil
-            
+        isLoading = true
+        errorMessage = nil
+        
+        Task(priority: .high) {
             guard let networkState: NetworkState = await networkManager?.fetchCharacters(url: ServerEndpoints.baseURL.rawValue + query) else {
                 return
             }
             
-            switch networkState {
-            case .invalidURL, .invalidData, .invalidServerResponse:
-                errorMessage = networkState.message
-            case .success(let characters):
-                self.charactersList = characters
+            await MainActor.run {
+                switch networkState {
+                case .invalidURL, .invalidData, .invalidServerResponse:
+                    errorMessage = networkState.message
+                case .success(let characters):
+                    charactersList = characters
+                }
+                
+                isLoading = false
             }
-            
-            if let uwCharactersList = charactersList, uwCharactersList.isEmpty {
-                errorMessage = "No results for '\(query)'"
-            }
-            isLoading = false
         }
     }
     

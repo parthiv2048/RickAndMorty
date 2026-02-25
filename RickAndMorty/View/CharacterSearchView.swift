@@ -25,19 +25,28 @@ struct CharacterSearchView: View {
             if characterSearchVM?.getIsLoading() ?? false {
                 HStack {
                     Spacer()
-                    ProgressView()
+                    VStack {
+                        ProgressView()
+                        Text("Loading Data, Please Wait...")
+                    }
                     Spacer()
                 }
-            } else if let errorMessage = characterSearchVM?.getErrorMessage() {
-                Text(errorMessage)
-                    .foregroundStyle(.secondary)
-                    .frame(maxWidth: .infinity, alignment: .center)
             } else {
                 ForEach(characterSearchVM?.getCharactersList() ?? []) { character in
                     NavigationLink(destination: CharacterDetailView(character: character)) {
                         CharacterRowView(character: character)
                     }
                 }
+            }
+        }
+        .alert(
+            characterSearchVM?.getErrorMessage() ?? "",
+            isPresented: .init(get: {characterSearchVM?.getErrorMessage() != nil}, set: {_ in})
+        )
+        {
+            Button("Cancel") {}
+            Button("Retry") {
+                characterSearchVM?.searchCharacter(query: searchQuery)
             }
         }
         .searchable(text: $searchQuery, placement: .navigationBarDrawer, prompt: "Search characters")
