@@ -9,9 +9,9 @@ import Foundation
 
 protocol CharacterSearchViewModelProtocol {
     func searchCharacter(query: String)
-    func getIsLoading() -> Bool?
+    func getNetworkState() -> NetworkState?
     func getErrorMessage() -> String?
-    func getCharactersList() -> [Character]?
+    func didFailToLoad() -> Bool
 }
 
 @MainActor
@@ -21,54 +21,45 @@ class CharacterSearchVM: CharacterSearchViewModelProtocol {
     // MARK: - Properties
     
     private var networkManager: NetworkManagerProtocol?
-    private var charactersList: [Character]?
-    private var isLoading: Bool?
-    private var errorMessage: String?
+    private var networkState: NetworkState?
     
     // MARK: - Initializer
     
-    init(networkManager: NetworkManagerProtocol? = nil, charactersList: [Character]? = nil, isLoading: Bool? = nil, errorMessage: String? = nil) {
+    init(networkManager: NetworkManagerProtocol? = nil, networkState: NetworkState? = .loading) {
         self.networkManager = networkManager
-        self.charactersList = charactersList
-        self.isLoading = isLoading
-        self.errorMessage = errorMessage
+        self.networkState = networkState
     }
     
     // MARK: - Search Character using Network Manager
 
     func searchCharacter(query: String) {
-        isLoading = true
-        errorMessage = nil
-        
+        networkState = .loading
         Task(priority: .high) {
-            guard let networkState: NetworkState = await networkManager?.fetchCharacters(url: ServerEndpoints.baseURL.rawValue + query) else {
-                return
-            }
-            
-            await MainActor.run {
-                switch networkState {
-                case .invalidURL, .invalidData, .invalidServerResponse:
-                    errorMessage = networkState.message
-                case .success(let characters):
-                    charactersList = characters
-                }
-                
-                isLoading = false
-            }
+            networkState = await networkManager?.fetchCharacters(url: ServerEndpoints.baseURL.rawValue + query)
         }
     }
     
     // MARK: - Getter Methods
     
-    func getIsLoading() -> Bool? {
-        return isLoading
+    func getNetworkState() -> NetworkState? {
+        return networkState
     }
     
     func getErrorMessage() -> String? {
-        return errorMessage
+        switch networkState {
+        case .failed(let networkError):
+            return networkError.message
+        default:
+            return nil
+        }
     }
     
-    func getCharactersList() -> [Character]? {
-        return charactersList
+    func didFailToLoad() -> Bool {
+        switch networkState {
+        case .failed(_):
+            return true
+        default:
+            return false
+        }
     }
 }

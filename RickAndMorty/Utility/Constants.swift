@@ -5,6 +5,8 @@
 //  Created by Parthiv Ganguly on 2/24/26.
 //
 
+import Foundation
+
 // MARK: - Server Endpoints
 
 enum ServerEndpoints: String {
@@ -14,10 +16,19 @@ enum ServerEndpoints: String {
 // MARK: - Network State
 
 enum NetworkState {
-    case invalidURL
-    case invalidServerResponse
-    case invalidData
+    case loading
+    case failed(NetworkError)
+    case empty
     case success([Character])
+}
+
+// MARK: - Network Error
+
+enum NetworkError: Error, LocalizedError {
+    case invalidURL
+    case dataParsingError
+    case invalidServerResponse
+    case networkConnectionError
     
     var message: String {
         switch self {
@@ -25,10 +36,10 @@ enum NetworkState {
             return "Invalid URL"
         case .invalidServerResponse:
             return "Server returned invalid response"
-        case .invalidData:
+        case .dataParsingError:
             return "Error parsing data from server"
-        case .success:
-            return ""
+        case .networkConnectionError:
+            return "Problem with network connection"
         }
     }
 }

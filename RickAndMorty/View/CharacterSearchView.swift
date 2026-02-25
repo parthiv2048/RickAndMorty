@@ -11,55 +11,81 @@ struct CharacterSearchView: View {
     
     // MARK: - Properties
 
-    private var characterSearchVM: CharacterSearchViewModelProtocol?
+    private var characterSearchVM: CharacterSearchViewModelProtocol
     @State private var searchQuery = ""
     
-    init(characterSearchVM: CharacterSearchViewModelProtocol? = nil) {
+    init(characterSearchVM: CharacterSearchViewModelProtocol) {
         self.characterSearchVM = characterSearchVM
+        
+        /// Load the full list of characters at the start
+        self.characterSearchVM.searchCharacter(query: "")
     }
     
-    // MARK: - Character List View
+    // MARK: - Loading View
     
-    var characterListView: some View {
-        List {
-            if characterSearchVM?.getIsLoading() ?? false {
-                HStack {
-                    Spacer()
-                    VStack {
-                        ProgressView()
-                        Text("Loading Data, Please Wait...")
-                    }
-                    Spacer()
-                }
-            } else {
-                ForEach(characterSearchVM?.getCharactersList() ?? []) { character in
-                    NavigationLink(destination: CharacterDetailView(character: character)) {
-                        CharacterRowView(character: character)
-                    }
-                }
+    var loadingView: some View {
+        HStack {
+            Spacer()
+            VStack {
+                ProgressView()
+                Text("Loading Data. Please wait...")
+                    .font(.subheadline)
             }
+            Spacer()
         }
-        .alert(
-            characterSearchVM?.getErrorMessage() ?? "",
-            isPresented: .init(get: {characterSearchVM?.getErrorMessage() != nil}, set: {_ in})
-        )
-        {
-            Button("Cancel") {}
-            Button("Retry") {
-                characterSearchVM?.searchCharacter(query: searchQuery)
-            }
-        }
-        .searchable(text: $searchQuery, placement: .navigationBarDrawer, prompt: "Search characters")
-        .onChange(of: searchQuery) { _, newValue in
-            characterSearchVM?.searchCharacter(query: newValue)
-        }
+    }
+    
+    // MARK: - Empty Results View
+    
+    var emptyResultsView: some View {
+        Text("No Results")
+            .font(.title)
+            .foregroundStyle(.secondary)
     }
     
     // MARK: - Body
     
     var body: some View {
-        NavigationStack {
-            characterListView
+        NavigationView {
+            switch characterSearchVM.getNetworkState() {
+            case .loading:
+                loadingView
+            case .success(let characterList):
+                characterListView(characterList: characterList)
+            default:
+                emptyResultsView
+            }
+        }
+        // MARK: Search Bar
+        .searchable(text: $searchQuery, placement: .navigationBarDrawer, prompt: "Search characters")
+        .onChange(of: searchQuery) { _, newValue in
+            characterSearchVM.searchCharacter(query: newValue)
+        }
+        // MARK: Error Alert
+        .alert(characterSearchVM.getErrorMessage() ?? "",
+               isPresented: .init(get: {characterSearchVM.didFailToLoad()}, set: {_ in}),
+        ) {
+            Button("Cancel") {}
+            Button("Retry") {
+                /// Retry button repeats the same search query
+                characterSearchVM.searchCharacter(query: searchQuery)
+            }
+        }
+    }
+}
+
+// MARK: - Character List View
+
+struct characterListView: View {
+    let characterList: [Character]
+    
+    var body: some View {
+        List {
+            ForEach(characterList) { character in
+                NavigationLink(destination: CharacterDetailView(character: character)) {
+                    CharacterRowView(character: character)
+                }
+            }
         }
     }
 }

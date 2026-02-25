@@ -20,22 +20,32 @@ class NetworkManager: NetworkManagerProtocol {
     // MARK: - Fetch Characters from Server
     
     func fetchCharacters(url: String) async -> NetworkState {
-        /// Simulate long loading time
+        /// Uncomment below line to simulate long loading time
         try? await Task.sleep(for: .seconds(3))
         
         guard let serverURL = URL(string: url) else {
-            return .invalidURL
+            return .failed(.invalidURL)
         }
         
         do {
             let (data, response) = try await URLSession.shared.data(from: serverURL)
             if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 200 {
-                return .invalidServerResponse
+                return .failed(.invalidServerResponse)
             }
+            
             let characterServerResponse = try? JSONDecoder().decode(CharacterServerResponse.self, from: data)
-            return .success(characterServerResponse?.results ?? [])
+            
+            guard let uwCharacterServerResponse = characterServerResponse, let uwResults = uwCharacterServerResponse.results else {
+                return .failed(.dataParsingError)
+            }
+            
+            if uwResults.isEmpty {
+                return .empty
+            }
+            
+            return .success(uwResults)
         } catch {
-            return .invalidData
+            return .failed(.networkConnectionError)
         }
     }
 }
