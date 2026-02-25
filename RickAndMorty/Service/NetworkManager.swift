@@ -5,10 +5,10 @@
 //  Created by Parthiv Ganguly on 2/24/26.
 //
 
-import SwiftUI
+import Foundation
 
 protocol NetworkManagerProtocol {
-    func fetchCharacters(url: String) async -> [Character]
+    func fetchCharacters(url: String) async -> NetworkState
 }
 
 class NetworkManager: NetworkManagerProtocol {
@@ -17,25 +17,22 @@ class NetworkManager: NetworkManagerProtocol {
     
     init() {}
     
-    // MARK: Fetch Characters from Server
+    // MARK: - Fetch Characters from Server
     
-    func fetchCharacters(url: String) async -> [Character] {
+    func fetchCharacters(url: String) async -> NetworkState {
         guard let serverURL = URL(string: url) else {
-            print("Log: Invalid URL")
-            return []
+            return .invalidURL
         }
         
         do {
             let (data, response) = try await URLSession.shared.data(from: serverURL)
             if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 200 {
-                print("Log: Server return error with code: \(httpResponse.statusCode)")
-                return []
+                return .invalidServerResponse
             }
             let characterServerResponse = try? JSONDecoder().decode(CharacterServerResponse.self, from: data)
-            return characterServerResponse?.results ?? []
+            return .success(characterServerResponse?.results ?? [])
         } catch {
-            print("Log: Error running Network code: \(error)")
-            return []
+            return .invalidData
         }
     }
 }

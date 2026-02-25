@@ -8,10 +8,14 @@
 import SwiftUI
 
 struct CharacterRowView: View {
+    
+    // MARK: - Properties
 
     let character: Character
-
-    var body: some View {
+    
+    // MARK: - Row View
+    
+    var rowView: some View {
         HStack(spacing: 12) {
             AsyncImage(url: URL(string: character.image ?? "")) { image in
                 image
@@ -32,5 +36,11 @@ struct CharacterRowView: View {
             }
         }
         .padding(.vertical, 4)
+    }
+    
+    // MARK: - Body
+
+    var body: some View {
+        rowView
     }
 }

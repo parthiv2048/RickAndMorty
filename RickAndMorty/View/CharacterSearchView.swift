@@ -9,7 +9,7 @@ import SwiftUI
 
 struct CharacterSearchView: View {
     
-    // MARK: Properties
+    // MARK: - Properties
 
     private var characterSearchVM: CharacterSearchViewModelProtocol?
     @State private var searchQuery = ""
@@ -17,32 +17,40 @@ struct CharacterSearchView: View {
     init(characterSearchVM: CharacterSearchViewModelProtocol? = nil) {
         self.characterSearchVM = characterSearchVM
     }
-
-    var body: some View {
-        NavigationStack {
-            List {
-                if characterSearchVM?.getIsLoading() ?? false {
-                    HStack {
-                        Spacer()
-                        ProgressView()
-                        Spacer()
-                    }
-                } else if let errorMessage = characterSearchVM?.getErrorMessage() {
-                    Text(errorMessage)
-                        .foregroundStyle(.secondary)
-                        .frame(maxWidth: .infinity, alignment: .center)
-                } else {
-                    ForEach(characterSearchVM?.getCharactersList() ?? []) { character in
-                        NavigationLink(destination: CharacterDetailView(character: character)) {
-                            CharacterRowView(character: character)
-                        }
+    
+    // MARK: - Character List View
+    
+    var characterListView: some View {
+        List {
+            if characterSearchVM?.getIsLoading() ?? false {
+                HStack {
+                    Spacer()
+                    ProgressView()
+                    Spacer()
+                }
+            } else if let errorMessage = characterSearchVM?.getErrorMessage() {
+                Text(errorMessage)
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .center)
+            } else {
+                ForEach(characterSearchVM?.getCharactersList() ?? []) { character in
+                    NavigationLink(destination: CharacterDetailView(character: character)) {
+                        CharacterRowView(character: character)
                     }
                 }
             }
-            .searchable(text: $searchQuery, placement: .navigationBarDrawer, prompt: "Search characters")
-            .onChange(of: searchQuery) { _, newValue in
-                characterSearchVM?.searchCharacter(query: newValue)
-            }
+        }
+        .searchable(text: $searchQuery, placement: .navigationBarDrawer, prompt: "Search characters")
+        .onChange(of: searchQuery) { _, newValue in
+            characterSearchVM?.searchCharacter(query: newValue)
+        }
+    }
+    
+    // MARK: - Body
+    
+    var body: some View {
+        NavigationStack {
+            characterListView
         }
     }
 }

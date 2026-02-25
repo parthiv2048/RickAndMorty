@@ -5,7 +5,7 @@
 //  Created by Parthiv Ganguly on 2/24/26.
 //
 
-import SwiftUI
+import Foundation
 
 struct Origin: Decodable {
     let name: String?
@@ -14,6 +14,8 @@ struct Origin: Decodable {
         case name
     }
 }
+
+// MARK: - Character Model
 
 struct Character: Decodable, Identifiable {
     let id: Int?
@@ -36,6 +38,8 @@ struct Character: Decodable, Identifiable {
         case created
     }
 }
+
+// MARK: - Server Response Model
 
 struct CharacterServerResponse: Decodable {
     let results: [Character]?
