@@ -16,7 +16,7 @@ struct CharacterRowView: View {
     // MARK: - Row View
     
     var rowView: some View {
-        HStack(spacing: 12) {
+        LazyHStack(spacing: 12) {
             AsyncImage(url: URL(string: character.image ?? "")) { image in
                 image
                     .resizable()
@@ -27,7 +27,7 @@ struct CharacterRowView: View {
             .frame(width: 60, height: 60)
             .clipShape(Circle())
 
-            VStack(alignment: .leading, spacing: 4) {
+            LazyVStack(alignment: .leading, spacing: 4) {
                 Text(character.name ?? "")
                     .font(.headline)
                 Text(character.species ?? "")

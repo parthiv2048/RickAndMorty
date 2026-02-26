@@ -11,20 +11,17 @@ struct CharacterSearchView: View {
     
     // MARK: - Properties
 
-    private var characterSearchVM: CharacterSearchViewModelProtocol
+    @ObservedObject private var characterSearchVM: CharacterSearchVM
     @State private var searchQuery = ""
     
-    init(characterSearchVM: CharacterSearchViewModelProtocol) {
+    init(characterSearchVM: CharacterSearchVM) {
         self.characterSearchVM = characterSearchVM
-        
-        /// Load the full list of characters at the start
-        self.characterSearchVM.searchCharacter(query: "")
     }
     
     // MARK: - Loading View
     
     var loadingView: some View {
-        HStack {
+        LazyHStack {
             Spacer()
             VStack {
                 ProgressView()
@@ -47,7 +44,7 @@ struct CharacterSearchView: View {
     
     var body: some View {
         NavigationView {
-            switch characterSearchVM.getNetworkState() {
+            switch characterSearchVM.networkState {
             case .loading:
                 loadingView
             case .success(let characterList):

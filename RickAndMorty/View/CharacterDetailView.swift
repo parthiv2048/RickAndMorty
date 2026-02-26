@@ -16,7 +16,7 @@ struct CharacterDetailView: View {
     // MARK: - Character Detail View
     
     var characterDetailView: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        LazyVStack(alignment: .leading, spacing: 16) {
             Text(character.name ?? "")
                 .font(.largeTitle)
                 .bold()
@@ -32,7 +32,7 @@ struct CharacterDetailView: View {
             }
             .frame(maxWidth: .infinity)
 
-            VStack(alignment: .leading, spacing: 8) {
+            LazyVStack(alignment: .leading, spacing: 8) {
                 DetailRow(label: "Species", value: character.species ?? "")
                 DetailRow(label: "Status", value: character.status ?? "")
                 DetailRow(label: "Origin", value: character.origin?.name ?? "")
@@ -63,7 +63,7 @@ private struct DetailRow: View {
     let value: String
 
     var body: some View {
-        HStack(alignment: .top) {
+        LazyHStack(alignment: .top) {
             Text("\(label):")
                 .fontWeight(.semibold)
                 .frame(width: 80, alignment: .leading)
