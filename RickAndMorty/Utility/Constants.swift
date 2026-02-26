@@ -7,6 +7,14 @@
 
 import Foundation
 
+// MARK: - String Constants
+
+enum StringConstants: String {
+    case loadingText = "Loading Data. Please wait..."
+    case searchPrompt = "Search characters"
+    case emptyResults = "No Results"
+}
+
 // MARK: - Server Endpoints
 
 enum ServerEndpoints: String {

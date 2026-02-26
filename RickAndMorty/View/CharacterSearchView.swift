@@ -25,7 +25,7 @@ struct CharacterSearchView: View {
             Spacer()
             VStack {
                 ProgressView()
-                Text("Loading Data. Please wait...")
+                Text(StringConstants.loadingText.rawValue)
                     .font(.subheadline)
             }
             Spacer()
@@ -35,7 +35,7 @@ struct CharacterSearchView: View {
     // MARK: - Empty Results View
     
     var emptyResultsView: some View {
-        Text("No Results")
+        Text(StringConstants.emptyResults.rawValue)
             .font(.title)
             .foregroundStyle(.secondary)
     }
@@ -54,7 +54,7 @@ struct CharacterSearchView: View {
             }
         }
         // MARK: Search Bar
-        .searchable(text: $searchQuery, placement: .navigationBarDrawer, prompt: "Search characters")
+        .searchable(text: $searchQuery, placement: .navigationBarDrawer, prompt: StringConstants.searchPrompt.rawValue)
         .onChange(of: searchQuery) { _, newValue in
             characterSearchVM.searchCharacter(query: newValue)
         }
