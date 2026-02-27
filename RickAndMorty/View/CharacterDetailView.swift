@@ -21,14 +21,18 @@ struct CharacterDetailView: View {
                 .font(.largeTitle)
                 .bold()
                 .padding()
+                .accessibilityAddTraits(.isHeader)
             
             AsyncImage(url: URL(string: character.image ?? "")) { image in
                 image
                     .resizable()
                     .scaledToFit()
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel("Image of \(character.name ?? "")")
             } placeholder: {
                 Color.secondary.opacity(0.2)
                     .frame(height: 300)
+                    .accessibilityLabel("Character image loading")
             }
             .frame(maxWidth: .infinity)
 
@@ -70,5 +74,7 @@ private struct DetailRow: View {
             Text(value)
                 .foregroundStyle(.secondary)
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityAddTraits(.isStaticText)
     }
 }

@@ -14,6 +14,8 @@ struct CharacterSearchView: View {
     @ObservedObject private var characterSearchVM: CharacterSearchVM
     @State private var searchQuery = ""
     
+    // MARK: - Initializer (View Model Injected)
+    
     init(characterSearchVM: CharacterSearchVM) {
         self.characterSearchVM = characterSearchVM
     }
@@ -40,7 +42,7 @@ struct CharacterSearchView: View {
             .foregroundStyle(.secondary)
     }
     
-    // MARK: - Body
+    // MARK: - Body View
     
     var body: some View {
         NavigationView {
@@ -63,10 +65,13 @@ struct CharacterSearchView: View {
                isPresented: .init(get: {characterSearchVM.didFailToLoad()}, set: {_ in}),
         ) {
             Button("Cancel") {}
+                .accessibilityLabel("Cancel the search")
+            
             Button("Retry") {
                 /// Retry button repeats the same search query
                 characterSearchVM.searchCharacter(query: searchQuery)
             }
+            .accessibilityLabel("Retry the search with the same query")
         }
     }
 }
@@ -82,6 +87,7 @@ struct characterListView: View {
                 NavigationLink(destination: CharacterDetailView(character: character)) {
                     CharacterRowView(character: character)
                 }
+                .accessibilityLabel("Tap to learn more about \(character.name ?? "")")
             }
         }
     }
