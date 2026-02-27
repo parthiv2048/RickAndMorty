@@ -84,10 +84,15 @@ struct characterListView: View {
     var body: some View {
         List {
             ForEach(characterList) { character in
+                let characterName = character.name ?? ""
+                /// Use array of character name parts for voice-control labels
+                /// For example - "Abadango Cluster Princess" will become ["Abadango Cluster Princess" , "Abadango", "Cluster", "Princess"]
+                let characterNamesSplit: [Substring] = [Substring(characterName)] + characterName.split(separator: " ")
                 NavigationLink(destination: CharacterDetailView(character: character)) {
                     CharacterRowView(character: character)
                 }
-                .accessibilityLabel("Tap to learn more about \(character.name ?? "")")
+                .accessibilityLabel("Tap to learn more about \(characterName)")
+                .accessibilityInputLabels(characterNamesSplit)
             }
         }
     }
